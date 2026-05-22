@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Health Check Quiz</title>
+    <!-- Google Fonts for Pixar-like/Playful Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        /* 1. PALETTE & DESIGN SYSTEM (Pixar/Chibi-inspired) */
+        :root {
+            --primary-dark: #0E3846;       /* Trustworthy Deep Teal */
+            --accent-gold: #ECAB23;        /* Bright Sun Life Gold */
+            --bg-canvas: #F0EEE9;          /* Warm Light Canvas */
+            --card-yellow: #fff9c4;         /* Soft Pastel Yellow */
+            --white: #ffffff;
+            --gray-text: #5c6f75;
+            --success-green: #2ecc71;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--primary-dark);
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 500;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            overflow-x: hidden;
+        }
+
+        /* 2. DYNAMIC APP-LIKE CONTAINER (Perfect for Desktop, Tablet, & Mobile) */
+        .app-container {
+            background-color: var(--white);
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(14, 56, 70, 0.12);
+            width: 100%;
+            max-width: 560px; /* Standard mobile-first app viewport width */
+            min-height: 620px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            border: 4px solid var(--white);
+            transition: var(--transition);
+        }
+
+        @media (min-width: 769px) {
+            .app-container:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 24px 48px rgba(14, 56, 70, 0.16);
+            }
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            flex-grow: 1;
+            padding: 32px 24px;
+            width: 100%;
+        }
+
+        .screen.active {
+            display: flex;
+            animation: slideFadeIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes slideFadeIn {
+            0% { opacity: 0; transform: translateY(24px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* 3. TYPOGRAPHY & HEADINGS */
+        h1, h2, h3 {
+            font-family: 'Fredoka', sans-serif;
+            color: var(--primary-dark);
+            line-height: 1.25;
+            margin-bottom: 12px;
+        }
+
+        h1 { font-size: 2.1rem; text-align: center; letter-spacing: -0.5px; }
+        h2 { font-size: 1.5rem; }
+        p { font-size: 1.05rem; line-height: 1.5; color: var(--gray-text); margin-bottom: 16px; }
+
+        /* CHIBI AVATAR INTEGRATION CLASSES */
+        .chibi-avatar {
+            background-image: url('Chibi Mark.png');
+            background-repeat: no-repeat;
+            background-color: var(--white);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 8px 20px rgba(14, 56, 70, 0.15);
+            border: 3px solid var(--white);
+            transition: var(--transition);
+        }
+
+        .chibi-avatar.welcome {
+            width: 140px; height: 140px;
+            background-size: 450%; background-position: 50% 43%; border-radius: 28px;
+        }
+
+        .chibi-avatar.head {
+            width: 65px; height: 65px;
+            background-size: 580%; background-position: 50% 41.5%; flex-shrink: 0;
+        }
+
+        .chibi-avatar.full {
+            width: 120px; height: 120px;
+            background-size: 450%; background-position: 50% 43%; border-radius: 24px;
+        }
+
+        .chibi-avatar:hover {
+            transform: scale(1.05) rotate(2deg);
+            box-shadow: 0 12px 24px rgba(14, 56, 70, 0.2);
+        }
+
+        /* 4. WELCOME PAGE SPECIFIC STYLES & LAYOUTS */
+        .welcome-hero h1 { text-align: center; line-height: 1.2; margin-bottom: 24px; }
+        .welcome-hero h1 span.line-1 { display: block; font-size: 2rem; font-weight: 700; color: var(--primary-dark); }
+        .welcome-hero h1 span.line-2 { display: block; font-size: 2.4rem; font-weight: 800; color: var(--accent-gold); margin-top: 4px; text-shadow: 1px 1px 0px rgba(0,0,0,0.05); }
+
+        .advisor-card {
+            background-color: var(--bg-canvas); border-radius: 20px; padding: 24px 20px; text-align: center; margin-bottom: 24px; border: 2px dashed rgba(14, 56, 70, 0.15); display: flex; flex-direction: column; align-items: center; gap: 4px;
+        }
+
+        .advisor-card h4 { font-family: 'Fredoka', sans-serif; font-size: 1.5rem; color: var(--primary-dark); margin-bottom: 0; margin-top: 8px; }
+        .advisor-card p.title { font-size: 1.05rem; color: var(--accent-gold); font-weight: 700; margin-bottom: 0; }
+        .advisor-card p.company { font-size: 0.95rem; color: var(--gray-text); margin-bottom: 12px; font-style: italic; }
+
+        .contact-links { display: flex; flex-direction: column; gap: 10px; align-items: center; width: 100%; margin-top: 4px; }
+        .contact-link {
+            color: var(--primary-dark); text-decoration: none; font-weight: 700; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 8px; transition: var(--transition); background-color: var(--white); padding: 12px 18px; border-radius: 99px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); width: 100%; max-width: 340px; justify-content: center;
+        }
+        .contact-link i { font-size: 1.25rem; }
+        .contact-link:hover { transform: scale(1.03); background-color: var(--card-yellow); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
+
+        /* 5. BUTTONS */
+        .btn {
+            background-color: var(--accent-gold); color: var(--primary-dark); border: none; border-radius: 18px; padding: 16px 28px; font-family: 'Fredoka', sans-serif; font-size: 1.25rem; font-weight: 600; cursor: pointer; box-shadow: 0 6px 0px #c08511; transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: auto; text-decoration: none;
+        }
+        .btn:hover { transform: translateY(2px); box-shadow: 0 4px 0px #c08511; }
+        .btn:active { transform: translateY(6px); box-shadow: 0 0px 0px #c08511; }
+
+        .pulse-btn { animation: bouncierPulse 2.2s infinite ease-in-out; }
+        @keyframes bouncierPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.04); box-shadow: 0 6px 15px rgba(236, 171, 35, 0.4), 0 6px 0px #c08511; }
+        }
+
+        .reveal-pulse-btn { animation: revealPulse 2s infinite ease-in-out; }
+        @keyframes revealPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 6px 0px #c08511, 0 4px 10px rgba(236,171,35,0.2); }
+            50% { transform: scale(1.05); box-shadow: 0 4px 0px #c08511, 0 12px 22px rgba(236,171,35,0.45); background-color: #f3b62c; }
+        }
+
+        /* 6. GAMIFICATION HUD & PROGRESS */
+        .hud-container { display: flex; justify-content: space-between; align-items: center; background: var(--card-yellow); border-radius: 16px; padding: 12px 16px; margin-bottom: 16px; font-family: 'Fredoka', sans-serif; font-size: 0.95rem; border: 2px solid var(--accent-gold); }
+        .hud-item { display: flex; align-items: center; gap: 6px; }
+        .xp-count { color: #d35400; font-weight: 700; }
+        .streak-count { color: #e74c3c; font-weight: 700; animation: pulse-fire 1.5s infinite; }
+        @keyframes pulse-fire { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+
+        .mascot-container { display: flex; gap: 16px; align-items: center; background-color: var(--bg-canvas); border-radius: 18px; padding: 12px 16px; margin-bottom: 20px; border-left: 6px solid var(--primary-dark); }
+        .mascot-bubble { font-size: 0.95rem; font-weight: 700; color: var(--primary-dark); line-height: 1.4; transition: opacity 0.25s ease-in-out; }
+        @keyframes wiggle { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-6deg) scale(1.02); } 75% { transform: rotate(6deg) scale(0.98); } }
+
+        .progress-bar-container { position: relative; width: 100%; height: 16px; background-color: var(--bg-canvas); border-radius: 99px; margin-bottom: 20px; border: 2px solid var(--white); overflow: visible; }
+        .progress-bar-fill { height: 100%; background-color: var(--accent-gold); width: 0%; transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border-radius: 99px; }
+        .progress-runner { position: absolute; left: 0; top: -12px; font-size: 1.4rem; transition: left 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); margin-left: -10px; pointer-events: none; }
+
+        #questionTitle { margin-bottom: 18px; }
+        .question-entrance-animate { animation: questionPopFocus 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+        @keyframes questionPopFocus { 0% { transform: translateY(-12px) scale(0.96); opacity: 0; filter: blur(2px); } 100% { transform: translateY(0) scale(1); opacity: 1; filter: blur(0); } }
+
+        .options-list { display: flex; flex-direction: column; gap: 14px; margin-top: 10px; margin-bottom: 24px; }
+        .option-card { background-color: var(--white); border: 2px solid rgba(14, 56, 70, 0.1); border-radius: 20px; padding: 18px; cursor: pointer; transition: var(--transition); display: flex; align-items: center; font-size: 1.05rem; color: var(--primary-dark); box-shadow: 0 4px 8px rgba(14, 56, 70, 0.04); line-height: 1.4; opacity: 0; transform: translateY(15px); animation: cardEntrance 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.2) forwards; }
+        @keyframes cardEntrance { to { opacity: 1; transform: translateY(0); } }
+        .option-card:nth-child(1) { animation-delay: 0.05s; } .option-card:nth-child(2) { animation-delay: 0.12s; } .option-card:nth-child(3) { animation-delay: 0.19s; } .option-card:nth-child(4) { animation-delay: 0.26s; }
+        .option-card:hover { border-color: var(--accent-gold); transform: translateY(-3px) scale(1.02); background-color: rgba(236, 171, 35, 0.05); box-shadow: 0 8px 16px rgba(14, 56, 70, 0.08); }
+        .option-card:active { transform: scale(0.97); }
+        .option-card.selected-bounce { animation: chooseBounce 0.35s ease-out; background-color: var(--card-yellow); border-color: var(--accent-gold); }
+        @keyframes chooseBounce { 0% { transform: scale(1); } 40% { transform: scale(0.94); } 70% { transform: scale(1.04); } 100% { transform: scale(1); } }
+
+        .nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 16px; }
+        .btn-back { background: none; border: none; color: var(--gray-text); font-family: 'Quicksand', sans-serif; font-size: 1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: var(--transition); }
+        .btn-back:hover { color: var(--primary-dark); transform: translateX(-3px); }
+
+        /* 7. FORM SCREEN COMPONENT */
+        .form-group { margin-bottom: 18px; display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-family: 'Fredoka', sans-serif; font-size: 1rem; color: var(--primary-dark); }
+        .form-control { border: 2px solid rgba(14, 56, 70, 0.15); border-radius: 14px; padding: 14px; font-family: 'Quicksand', sans-serif; font-size: 1.05rem; color: var(--primary-dark); transition: var(--transition); width: 100%; }
+        .form-control:focus { outline: none; border-color: var(--accent-gold); box-shadow: 0 0 0 3px rgba(236, 171, 35, 0.15); }
+        .form-row { display: grid; grid-template-columns: 1fr; gap: 14px; }
+        @media (min-width: 480px) { .form-row { grid-template-columns: 1fr 1fr; } }
+        .privacy-box { display: flex; align-items: flex-start; gap: 12px; margin: 16px 0; background-color: var(--bg-canvas); padding: 14px; border-radius: 16px; }
+        .privacy-box input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--accent-gold); cursor: pointer; margin-top: 2px; flex-shrink: 0; }
+        .privacy-box label { font-size: 0.85rem; line-height: 1.4; color: var(--gray-text); cursor: pointer; }
+
+        /* 8. RESULTS SCREEN COMPONENT */
+        .results-header { text-align: center; margin-bottom: 24px; }
+        .lifestage-badge { display: inline-block; background-color: var(--primary-dark); color: var(--white); font-family: 'Fredoka', sans-serif; font-size: 1rem; padding: 8px 16px; border-radius: 99px; margin-bottom: 12px; box-shadow: 0 6px 12px rgba(14, 56, 70, 0.1); }
+        .gap-card-list { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; }
+        .gap-card { background-color: var(--white); border: 2px solid rgba(14, 56, 70, 0.08); border-radius: 20px; padding: 16px 20px; display: flex; align-items: flex-start; gap: 16px; box-shadow: 0 8px 16px rgba(14, 56, 70, 0.03); position: relative; overflow: hidden; }
+        .gap-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background-color: var(--accent-gold); }
+        .gap-icon { font-size: 2rem; flex-shrink: 0; background-color: var(--bg-canvas); width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; }
+        .gap-content { display: flex; flex-direction: column; gap: 4px; }
+        .gap-title { font-family: 'Fredoka', sans-serif; font-size: 1.15rem; color: var(--primary-dark); }
+        .gap-desc { font-size: 0.95rem; line-height: 1.4; color: var(--gray-text); }
+
+        /* Smart Insights Box */
+        .ai-insights-box { background-color: #f0fdf4; border: 2px solid #bbf7d0; border-radius: 24px; padding: 20px; margin-bottom: 24px; position: relative; }
+        .ai-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; color: #166534; }
+        .ai-header i { font-size: 1.4rem; color: var(--accent-gold); }
+        .ai-content { font-size: 0.95rem; line-height: 1.5; color: #14532d; white-space: pre-line; }
+
+        /* Smart Chat Section (Option B) */
+        .chat-section { border: 2px solid rgba(14, 56, 70, 0.1); border-radius: 24px; background-color: var(--white); padding: 16px; margin-bottom: 24px; display: flex; flex-direction: column; gap: 12px; }
+        .chat-messages { max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px; }
+        .chat-bubble { max-width: 85%; padding: 10px 14px; border-radius: 18px; font-size: 0.9rem; line-height: 1.4; }
+        .chat-bubble.ai { background-color: var(--bg-canvas); color: var(--primary-dark); align-self: flex-start; border-top-left-radius: 4px; }
+        .chat-bubble.user { background-color: var(--primary-dark); color: var(--white); align-self: flex-end; border-top-right-radius: 4px; }
+        .chat-input-wrapper { display: flex; gap: 8px; border-top: 1px solid rgba(14, 56, 70, 0.1); padding-top: 12px; }
+        .chat-input { flex-grow: 1; border: 1px solid rgba(14, 56, 70, 0.2); border-radius: 12px; padding: 10px; font-family: inherit; font-size: 0.9rem; }
+        .chat-input:focus { outline: none; border-color: var(--accent-gold); }
+        .chat-send-btn { background-color: var(--accent-gold); border: none; border-radius: 12px; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--primary-dark); transition: var(--transition); }
+        .chat-send-btn:hover { transform: scale(1.05); }
+        .chat-suggestion-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+        .suggestion-chip { font-size: 0.8rem; background-color: rgba(14, 56, 70, 0.05); border: 1px solid rgba(14, 56, 70, 0.1); border-radius: 99px; padding: 6px 12px; cursor: pointer; color: var(--primary-dark); transition: var(--transition); }
+        .suggestion-chip:hover { background-color: var(--card-yellow); border-color: var(--accent-gold); }
+
+        .alert-banner { background-color: #fee2e2; border: 1px solid #fecaca; color: #991b1b; padding: 12px; border-radius: 12px; margin-bottom: 16px; display: none; font-size: 0.9rem; align-items: center; gap: 8px; }
+        .loader-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255, 255, 255, 0.95); display: none; align-items: center; justify-content: center; flex-direction: column; z-index: 10; }
+        .spinner { width: 60px; height: 60px; border: 6px solid var(--bg-canvas); border-top: 6px solid var(--accent-gold); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- Loading overlay when posting payload data to Formspree -->
+        <div class="loader-overlay" id="loaderOverlay">
+            <div class="spinner"></div>
+            <h3 id="loaderTitle" style="text-align: center;">Pinapadala na natin...</h3>
+            <p id="loaderDesc" style="text-align: center; padding: 0 20px;">Bumubuo ng smart custom results para sa'yo. Saglit lang po!</p>
+        </div>
+
+        <!-- SCREEN 1: WELCOME SCREEN (Premium Diagnostic Presentation) -->
+        <div class="screen active" id="welcomeScreen">
+            <div class="welcome-hero">
+                <!-- Two line emphasis format with structured font-sizes -->
+                <h1>
+                    <span class="line-1">Know your insurance needs</span>
+                    <span class="line-2">in 3 minutes!</span>
+                </h1>
+            </div>
+            
+            <div class="instruction-box" style="background-color: var(--card-yellow); border: 2px dashed var(--accent-gold); border-radius: 20px; padding: 18px; margin-bottom: 24px; text-align: center;">
+                📌 <strong>Walang maling sagot dito!</strong> Super casual at dinesign para mas madaling maintindihan ang iyong priorities. It will only take about 3 minutes.
+            </div>
+
+            <!-- Styled exactly with requested order & details (Messenger and Gmail logo format) -->
+            <div class="advisor-card">
+                <!-- Integrated shoulder-to-head portrait view of Chibi Mark -->
+                <div class="chibi-avatar welcome" style="margin-bottom: 12px; box-shadow: 0 8px 16px rgba(14, 56, 70, 0.12);"></div>
+                <h4>Mark Padilla</h4>
+                <p class="title">Licensed Insurance Advisor</p>
+                <p class="company">Sun Life Philippines</p>
+                
+                <div class="contact-links">
+                    <a href="https://m.me/markpadillaPH" target="_blank" class="contact-link">
+                        <i class="fa-brands fa-facebook-messenger" style="color: #0084FF;"></i> m.me/markpadillaPH
+                    </a>
+                    <a href="mailto:markjohn.q.padilla@sunlife.com.ph" class="contact-link">
+                        <i class="fa-solid fa-envelope" style="color: var(--accent-gold);"></i> markjohn.q.padilla@sunlife.com.ph
+                    </a>
+                </div>
+            </div>
+
+            <button class="btn pulse-btn" onclick="startQuiz()">
+                Start Now! <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+
+        <!-- SCREEN 2: THE CONVERSATIONAL QUIZ SCREEN (Gamified with Dynamic HUD) -->
+        <div class="screen" id="quizScreen">
+            <div class="hud-container">
+                <div class="hud-item">
+                    <span>⚡ Wisdom:</span>
+                    <span class="xp-count" id="xpCount">0 XP</span>
+                </div>
+                <div class="hud-item">
+                    <span>🔥 Streak:</span>
+                    <span class="streak-count" id="streakCount">0 Combo</span>
+                </div>
+            </div>
+
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="progressBar"></div>
+                <div class="progress-runner" id="progressRunner">🏃‍♂️</div>
+            </div>
+
+            <div class="mascot-container" style="align-items: center;">
+                <div class="chibi-avatar head" id="mascotAvatar" style="animation: wiggle 4s infinite;"></div>
+                <div class="mascot-bubble" id="mascotText">Humanda ka! Malaking tulong ito para sa priorities mo. ✨</div>
+            </div>
+
+            <h3 id="questionTitle">Question text goes here?</h3>
+            
+            <div class="options-list" id="optionsContainer">
+                <!-- Javascript will render options cards here -->
+            </div>
+
+            <div class="nav-footer">
+                <button class="btn-back" onclick="handleBack()">
+                    <i class="fa-solid fa-arrow-left"></i> Balikan ang huling tanong
+                </button>
+                <span style="font-size: 0.9rem; color: var(--gray-text);" id="questionProgress">1 ng 10</span>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: LEAD CAPTURE FORM (Conversational Taglish Elements) -->
+        <div class="screen" id="formScreen">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <span style="font-size: 3rem;">🎉</span>
+                <h2 style="margin-top: 8px;">Kumpleto na ang answers mo!</h2>
+                <p>Para makuha, mai-save, at ma-analyze ng aming smart system ang iyong Top 3 Financial Needs, pakisulat lang ang iyong konting details dito:</p>
+            </div>
+
+            <div class="alert-banner" id="formErrorBanner">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span id="formErrorMessage">May mali sa form submission.</span>
+            </div>
+
+            <form id="leadForm" onsubmit="handleFormSubmit(event)">
+                <div class="form-group">
+                    <label for="fullName">Buong Pangalan mo (Full Name)</label>
+                    <input type="text" id="fullName" class="form-control" placeholder="Hal. Juan Dela Cruz" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="sex">Kasarian (Sex)</label>
+                        <select id="sex" class="form-control" required>
+                            <option value="" disabled selected>Piliin ang kasarian...</option>
+                            <option value="Male">Lalaki (Male)</option>
+                            <option value="Female">Babae (Female)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mobile">Mobile Number mo</label>
+                        <input type="tel" id="mobile" class="form-control" placeholder="Hal. 09171234567" pattern="[0-9]*" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Active Email Address mo</label>
+                    <input type="email" id="email" class="form-control" placeholder="Hal. juan@gmail.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="socials">Saan ka namin pwedeng ma-contact sa Socials? (Optional)</label>
+                    <input type="text" id="socials" class="form-control" placeholder="Hal. Facebook Link / Viber Number">
+                </div>
+
+                <div class="privacy-box">
+                    <input type="checkbox" id="privacyConsent" required>
+                    <label for="privacyConsent">
+                        <strong>YES, I agree!</strong> Pinapayagan ko si Mark Padilla na gamitin ang details ko para ma-process ang quiz results ko, complying with the Data Privacy Act of 2012.
+                    </label>
+                </div>
+
+                <button type="submit" class="btn reveal-pulse-btn" style="width: 100%;">
+                    Reveal Results Now!
+                </button>
+            </form>
+        </div>
+
+        <!-- SCREEN 4: RESULTS SCREEN (Option B: Smart Concierge Chat Integration) -->
+        <div class="screen" id="resultsScreen">
+            <div class="results-header">
+                <span style="font-size: 3rem;">✨</span>
+                <h2 style="margin-top: 8px;">Heto na ang Iyong Resulta!</h2>
+                <p>Salamat sa pagsagot! Base sa iyong mga pinili, natukoy natin ang iyong core life focus at priorities:</p>
+                <div class="lifestage-badge" id="lifeStageBadge">Loading...</div>
+            </div>
+
+            <!-- Dynamic Smart Insights (Generated Client-Side, No API needed) -->
+            <div class="ai-insights-box">
+                <div class="ai-header">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <h3 style="font-size: 1.1rem; margin-bottom: 0;">Mark's Custom Analysis</h3>
+                </div>
+                <div id="aiContent" class="ai-content"></div>
+            </div>
+
+            <h3 style="font-size: 1.2rem; margin-bottom: 12px; text-align: center;">Ang Iyong Top 3 Financial Gaps na Kailangang Tutukan:</h3>
+            
+            <div class="gap-card-list" id="gapsContainer">
+                <!-- JS will render top 3 diagnostic gaps dynamically here -->
+            </div>
+
+            <!-- Interactive Smart Concierge Chat Widget (Option B) -->
+            <div class="chat-section">
+                <h4 style="font-family: 'Fredoka', sans-serif; font-size: 1.05rem; display: flex; align-items: center; gap: 6px;">
+                    💬 May tanong ka tungkol sa results mo?
+                </h4>
+                <p style="font-size: 0.85rem; margin-bottom: 6px; line-height: 1.3;">
+                    I-click ang mga topics sa ibaba o mag-type ng tanong. Nandito ako para sagutin 'yan!
+                </p>
+
+                <div class="chat-messages" id="chatMessages">
+                    <div class="chat-bubble ai">
+                        Kumusta! Ako ang smart assistant ni Mark. May gusto ka bang linawin tungkol sa nakuha mong results?
+                    </div>
+                </div>
+
+                <div class="chat-suggestion-chips" id="suggestionChips">
+                    <span class="suggestion-chip" onclick="smartChat('emergency')">Paano simulan Emergency Fund?</span>
+                    <span class="suggestion-chip" onclick="smartChat('health')">Health Protection vs HMO?</span>
+                    <span class="suggestion-chip" onclick="smartChat('life')">Ano ang Income Protection?</span>
+                    <span class="suggestion-chip" onclick="smartChat('retirement')">Retirement planning steps?</span>
+                </div>
+
+                <div class="chat-input-wrapper">
+                    <input type="text" id="chatInput" class="chat-input" placeholder="Mag-type ng tanong dito..." onkeypress="handleChatKeyPress(event)">
+                    <button class="chat-send-btn" id="chatSendBtn" onclick="sendChatMessage()">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Styled exactly matching welcomes page order & details with Chibi Mark Front-Facing Avatar -->
+            <div class="advisor-card" style="margin-top: auto; margin-bottom: 16px;">
+                <div class="chibi-avatar full" style="margin-bottom: 12px;"></div>
+                <h4>Mark Padilla</h4>
+                <p class="title">Licensed Insurance Advisor</p>
+                <p class="company">Sun Life Philippines</p>
+                
+                <div class="contact-links" style="margin-bottom: 12px;">
+                    <a href="https://m.me/markpadillaPH" target="_blank" class="contact-link">
+                        <i class="fa-brands fa-facebook-messenger" style="color: #0084FF;"></i> m.me/markpadillaPH
+                    </a>
+                    <a href="mailto:markjohn.q.padilla@sunlife.com.ph" class="contact-link">
+                        <i class="fa-solid fa-envelope" style="color: var(--accent-gold);"></i> markjohn.q.padilla@sunlife.com.ph
+                    </a>
+                </div>
+                <p style="font-size: 0.9rem; line-height: 1.4; text-align: center;">
+                    Naka-ready akong gabayan ka! I-message si Mark Padilla para makagawa tayo ng solid, secure plan base sa digital diagnostics mo.
+                </p>
+            </div>
+
+            <a id="ctaEmailBtn" class="btn" href="#">
+                Pagusapan Natin Ito kay Mark! <i class="fa-solid fa-comments"></i>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- 9. QUIZ STATE & CALCULATING SCRIPTS -->
+    <script>
+        // Synthesizes a playful, warm game sound on selection
+        function playSuccessSound() {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                const osc1 = ctx.createOscillator();
+                const gain1 = ctx.createGain();
+                osc1.type = 'sine';
+                osc1.frequency.setValueAtTime(523.25, ctx.currentTime);
+                osc1.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.12);
+                gain1.gain.setValueAtTime(0.08, ctx.currentTime);
+                gain1.gain.exponentialRampToValueAtTime(0.005, ctx.currentTime + 0.25);
+                osc1.connect(gain1);
+                gain1.connect(ctx.destination);
+                osc1.start();
+                osc1.stop(ctx.currentTime + 0.25);
+            } catch (e) {}
+        }
+
+        // Diagnostic mapping storage
+        const questions = [
+            {
+                question: "Ano ang pinaka-priority mo sa buhay right now?",
+                options: [
+                    { text: "Focus muna sa career, personal growth, at self-reliance. Me, myself, and I era!", stage: "Getting Started", gaps: { emergency: 1, milestones: 1 } },
+                    { text: "Aking pamilya at mga anak. Ang pangarap at security nila ang number one priority ko.", stage: "Moving Up", gaps: { education: 1, income: 1 } },
+                    { text: "Inaalagaan ko na pareho ang kalusugan ko at ang naipon ko para sa future.", stage: "Preparing Ahead", gaps: { health: 1, retirement: 1 } },
+                    { text: "Gusto ko na lang masiguro na magiging kumportable ang pamilya ko at maayos ang maiiwan ko sa kanila.", stage: "Leaving a Legacy", gaps: { estate: 1, retirement: 1 } }
+                ]
+            },
+            {
+                question: "Kapag naiisip mo ang pera, ano ang pinakamalaking 'WHAT IFs...' na nagpapakaba sa'yo?",
+                options: [
+                    { text: "Paano kung biglang mawalan ng trabaho o magka-emergency tapos zero ang ipon?", gaps: { emergency: 2 } },
+                    { text: "Paano kung may mangyaring masama sa akin? Paano na ang pamilyang umaasa sa income ko?", gaps: { income: 2 } },
+                    { text: "Paano kung biglang magkasakit ng malubha? Sobrang mahal magpa-hospital ngayon.", gaps: { health: 2 } },
+                    { text: "Paano kung tumanda ako nang walang sapat na pondo at umasa lang sa mga anak ko?", gaps: { retirement: 2 } }
+                ]
+            },
+            {
+                question: "Alin sa mga ito ang pinaka-nakaka-relate sa kasalukuyang sitwasyon mo?",
+                options: [
+                    { text: "Nangungupahan o nakatira pa sa magulang, at wala pang sinusuportahang mga anak.", stage: "Getting Started", gaps: { emergency: 1, milestones: 1 } },
+                    { text: "May sarili o binubuong pamilya, at may mga anak na nag-aaral o palakihin pa.", stage: "Moving Up", gaps: { education: 2, income: 1 } },
+                    { text: "Medyo stable na ang pamilya, pa-gradweyt na ang mga bata, at nagse-settle na ng long-term properties.", stage: "Preparing Ahead", gaps: { retirement: 1, milestones: 1 } },
+                    { text: "Ini-enjoy na lang ang bunga ng pagod at iniisip kung paano ipapasa nang maayos ang mga ari-arian.", stage: "Leaving a Legacy", gaps: { estate: 2 } }
+                ]
+            },
+            {
+                question: "Pagdating sa pag-aaral ng mga bata (o magiging anak mo), ano ang plano mo?",
+                options: [
+                    { text: "Gusto ko sa magandang pribadong paaralan o unibersidad sila makapagtapos, anuman ang mangyari.", gaps: { education: 2, income: 1 } },
+                    { text: "Wala akong planong magka-anak, o tapos na silang mag-aral. Focus ko naman ay ibang pangarap.", gaps: { milestones: 1, retirement: 1 } },
+                    { text: "Gusto ko naman silang suportahan pero sa ngayon, umaasa lang kung ano ang kasya sa monthly budget.", gaps: { education: 1, emergency: 1 } }
+                ]
+            },
+            {
+                question: "Kung biglang magka-emergency bukas—gaya ng major house repairs o biglang pagkawala ng income—gaano katagal mabubuhay ang pamilya gamit ang cash savings mo?",
+                options: [
+                    { text: "Naku, baka kulang pa sa isang buwan. Mapipilitan talagang mangutang sa kamag-anak o credit card.", gaps: { emergency: 3 } },
+                    { text: "Kasya naman siguro ng 1 hanggang 3 buwan, pero pagkatapos niyon, medyo tagilid na.", gaps: { emergency: 2 } },
+                    { text: "Kayang-kaya! May sapat na nakatabing pondo na kasya para sa 6 months o higit pa nang hindi naapektuhan ang lifestyle namin.", gaps: { milestones: 1, income: 1 } }
+                ]
+            },
+            {
+                question: "Huwag naman sana, pero kung ang isang miyembro ng pamilya ay ma-diagnose ng critical illness (gaya ng cancer o stroke), saan kukuha ng pambayad sa gamutan?",
+                options: [
+                    { text: "Sisimutin ang lahat ng savings, baka ibenta ang mga ari-arian, o hihingi ng tulong sa iba (PCSO/GoFundMe).", gaps: { health: 3 } },
+                    { text: "Aasa muna sa HMO ng kumpanya at PhilHealth, kahit alam kong limited lang ang kaya nitong i-cover.", gaps: { health: 2, emergency: 1 } },
+                    { text: "Handa kami. May nakalaan kaming insurance policy o personal health fund na sasagot sa milyun-milyong gastos.", gaps: { retirement: 1, income: 1 } }
+                ]
+            },
+            {
+                question: "Bukod sa mga basic expenses, ano ang pinaka-inaasam mong milestone na mapag-ipunan sa susunod na mga taon?",
+                options: [
+                    { text: "Makabili ng sariling sasakyan, makalipat sa pangarap na bahay, o makapag-travel abroad.", gaps: { milestones: 2 } },
+                    { text: "Makapag-ipon ng sapat na kapital para makapagsimula o makapagpalago ng sariling negosyo.", gaps: { milestones: 2 } },
+                    { text: "Wala na akong ibang hangad kundi ang matiyak na may sapat na pera or milyon ako pagtanda ko para relax na lang.", gaps: { retirement: 2 } }
+                ]
+            },
+            {
+                question: "Ano ang realisitikong tingin mo sa sitwasyon mo pagtanda o pagsapit ng retirement age?",
+                options: [
+                    { text: "Medyo nag-aalala. Baka kailangan ko pa ring magtrabaho habangbuhay o umasa sa pension na alam nating maliit lang.", gaps: { retirement: 3 } },
+                    { text: "Hindi ko pa masyadong naiisip, pero sana naman ay maalagaan at matulungan ako ng mga anak ko kapag dumating ang araw na iyon.", gaps: { retirement: 2, income: 1 } },
+                    { text: "Plano kong mamuhay nang maginhawa, nagre-relax sa sariling bahay, nagta-travel, at may passive income na pumapasok buwan-buwan.", gaps: { retirement: 1, estate: 1 } }
+                ]
+            },
+            {
+                question: "Paano mo karaniwang hina-handle ang natatanggap mong sweldo o kita buwan-buwan?",
+                options: [
+                    { text: "Gastos muna sa bills at wants, tapos kung may matira (na madalas ay wala), iyon lang ang naitatabi.", gaps: { emergency: 2, milestones: 1 } },
+                    { text: "Nagpapadala sa pamilya o diretso sa mga bayarin ng mga anak, kaya halos walang naitatabi para sa sarili kong future.", gaps: { income: 2, education: 1 } },
+                    { text: "Strict ang system ko. Auto-deduct agad ang ipon at investment pagkasweldo bago gastusin ang natitira.", gaps: { income: 1, retirement: 1 } }
+                ]
+            },
+            {
+                question: "Pagdating sa mga maiiwan mo sa mundong ito, ano ang pinakamahalaga sa'yo?",
+                options: [
+                    { text: "Gusto kong masigurong hindi magiging pabigat ang pondo ko, at may maiiwan akong malinis at buong pamana na walang sakit sa ulo sa buwis.", gaps: { estate: 3 } },
+                    { text: "Basta makatapos lang ang mga anak ko at makatayo sa sarili nilang mga paa, sapat na sa akin iyon.", gaps: { income: 1, education: 1 } },
+                    { text: "Bata pa naman ako o nagsisimula pa lang, hindi ko pa priority o wala pa sa isip ko ang usaping pamana sa ngayon.", gaps: { emergency: 1, milestones: 1 } }
+                ]
+            }
+        ];
+
+        // Gamified speech/reactions for the mascot
+        const mascotReactions = [
+            "Nice start! Ramdam namin ang aking focus sa iyong goals! ✨",
+            "What if na 'to... Grabe mapaisip, pero face your fears natin! 💪",
+            "Relate much! Lahat naman tayo nagsimula dyan, 'di ba? 🗺️",
+            "Education is key! Solid na long-term priority 'yan! 🎓",
+            "The 6-month buffer rule is absolute gold! Check natin kung safe ka. 💰",
+            "Mapanakit na real-talk... pero kailangan paghandaan para 'di masimot. 🏥",
+            "Wow! Kayang-kaya maabot ang milestones basta may plan. 🚀",
+            "Retirement vision! Sino bang may gustong maging pabigat sa pagtanda? 🍹",
+            "Aray! Ang tindi ng self-control check sa sweldo natin! 💸",
+            "Legacy level... Pamanang walang sakit sa ulo! Isang Alamat! 🔑"
+        ];
+
+        // Emojis mapping for progression runner
+        const runnerMascots = ["🏃‍♂️", "🧗‍♂️", "🏎️", "🚀", "🛸"];
+
+        // Language metadata definitions
+        const gapMetadata = {
+            emergency: {
+                title: "Emergency Fund",
+                desc: "Pondo para sa mga hindi inaasahang krisis o urgent situations para hindi mo kailanganing mangutang nang biglaan.",
+                icon: "🚨"
+            },
+            income: {
+                title: "Income Protection",
+                desc: "Parang life insurance, ito ang magiging kalasag ng iyong buong pamilya upang magpatuloy ang kanilang maayos na buhay anuman ang mangyari sa'yo.",
+                icon: "🛡️"
+            },
+            education: {
+                title: "Education Fund",
+                desc: "Garantisadong pondo para sa magandang pag-aaral at matibay na kinabukasan ng iyong mga anak.",
+                icon: "🎓"
+            },
+            milestones: {
+                title: "Savings for Milestones",
+                desc: "Para sa pagbili ng iyong sariling bahay, sasakyan, pangarap na travel goals, o panimulang puhunan sa negosyo.",
+                icon: "🚀"
+            },
+            health: {
+                title: "Health Protection",
+                desc: "Medical safety net laban sa malulubhang sakit o biglaang pagkaka-ospital upang hindi tuluyang masimot ang iyong naipon.",
+                icon: "🏥"
+            },
+            retirement: {
+                title: "Retirement Fund",
+                desc: "Seguridad para maging masaya, malaya, at maginhawa ang iyong golden years nang hindi umaasa sa pension o sa mga anak mo.",
+                icon: "🍹"
+            },
+            estate: {
+                title: "Estate Transfer Fund",
+                desc: "Para sa maayos na pamana ng iyong properties sa iyong pamilya nang walang sakit sa ulo sa legalities o mabigat na estate tax.",
+                icon: "🔑"
+            }
+        };
+
+        const lifestageMetadata = {
+            "Getting Started": "Getting Started (Nagsisimula pa lang maging malaya at independent!)",
+            "Moving Up": "Moving Up (Priority mo ngayon ang pamilya at ang iyong mga mahal sa buhay)",
+            "Preparing Ahead": "Preparing Ahead (Mas nagpo-focus ka na sa pangangalaga ng kalusugan at paglago ng kayamanan)",
+            "Leaving a Legacy": "Leaving a Legacy (Sinisiguro mo ang kumportableng retirement at ang pamanang maiiwan mo)"
+        };
+
+        // Engine State variables
+        let currentIndex = 0;
+        let scoreXp = 0;
+        let streakCombo = 0;
+        let scores = { emergency: 0, income: 0, education: 0, milestones: 0, health: 0, retirement: 0, estate: 0 };
+        let lifestageScores = { "Getting Started": 0, "Moving Up": 0, "Preparing Ahead": 0, "Leaving a Legacy": 0 };
+        let history = []; // Stores state records for Back button
+        let clientData = {}; // Stores form details
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function startQuiz() {
+            currentIndex = 0; scoreXp = 0; streakCombo = 0;
+            scores = { emergency: 0, income: 0, education: 0, milestones: 0, health: 0, retirement: 0, estate: 0 };
+            lifestageScores = { "Getting Started": 0, "Moving Up": 0, "Preparing Ahead": 0, "Leaving a Legacy": 0 };
+            history = [];
+            document.getElementById('formErrorBanner').style.display = 'none';
+            playSuccessSound();
+            updateGamifiedHud();
+            renderQuestion();
+            showScreen('quizScreen');
+        }
+
+        function updateGamifiedHud() {
+            document.getElementById('xpCount').innerText = `${scoreXp} XP`;
+            document.getElementById('streakCount').innerText = `${streakCombo} Combo`;
+        }
+
+        function updateMascotReaction() {
+            const reactionText = mascotReactions[currentIndex] || "Tuloy-tuloy lang! Malapit mo nang makita ang results mo. 🦊";
+            const mascotBox = document.getElementById('mascotText');
+            mascotBox.style.opacity = '0';
+            setTimeout(() => { mascotBox.innerText = reactionText; mascotBox.style.opacity = '1'; }, 150);
+        }
+
+        function renderQuestion() {
+            const currentQ = questions[currentIndex];
+            const total = questions.length;
+            const progressPercent = ((currentIndex) / total) * 100;
+            
+            document.getElementById('progressBar').style.width = `${progressPercent}%`;
+            const runnerEl = document.getElementById('progressRunner');
+            runnerEl.style.left = `calc(${progressPercent}% - 5px)`;
+            
+            const mascotIndex = Math.min(Math.floor(currentIndex / 2.5), runnerMascots.length - 1);
+            runnerEl.innerText = runnerMascots[mascotIndex];
+            document.getElementById('questionProgress').innerText = `${currentIndex + 1} ng ${total}`;
+            
+            const qTitle = document.getElementById('questionTitle');
+            qTitle.innerText = currentQ.question;
+            qTitle.classList.remove('question-entrance-animate');
+            void qTitle.offsetWidth; // Trigger reflow
+            qTitle.classList.add('question-entrance-animate');
+            
+            updateMascotReaction();
+
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+            currentQ.options.forEach((opt, idx) => {
+                const card = document.createElement('div');
+                card.className = 'option-card';
+                card.innerText = opt.text;
+                card.onclick = () => {
+                    card.classList.add('selected-bounce');
+                    playSuccessSound();
+                    setTimeout(() => handleSelectOption(opt), 350);
+                };
+                container.appendChild(card);
+            });
+        }
+
+        function handleSelectOption(opt) {
+            history.push({ index: currentIndex, scoreXp, streakCombo, scoresState: { ...scores }, lifestageState: { ...lifestageScores } });
+            streakCombo += 1;
+            scoreXp += (100 * streakCombo);
+            updateGamifiedHud();
+
+            if (opt.gaps) for (const key in opt.gaps) scores[key] += opt.gaps[key];
+            if (opt.stage) lifestageScores[opt.stage] += 2;
+
+            if (currentIndex < questions.length - 1) {
+                currentIndex++; renderQuestion();
+            } else {
+                document.getElementById('progressBar').style.width = '100%';
+                document.getElementById('progressRunner').style.left = 'calc(100% - 15px)';
+                document.getElementById('progressRunner').innerText = "🎁";
+                setTimeout(() => showScreen('formScreen'), 400);
+            }
+        }
+
+        function handleBack() {
+            if (history.length > 0) {
+                const prev = history.pop();
+                currentIndex = prev.index; scoreXp = prev.scoreXp; streakCombo = prev.streakCombo;
+                scores = { ...prev.scoresState }; lifestageScores = { ...prev.lifestageState };
+                updateGamifiedHud(); renderQuestion();
+            } else {
+                showScreen('welcomeScreen');
+            }
+        }
+
+        function calculateTopGaps() {
+            return Object.keys(scores).sort((a, b) => scores[b] - scores[a]).slice(0, 3);
+        }
+
+        function calculateLifeStage() {
+            return Object.keys(lifestageScores).reduce((a, b) => lifestageScores[a] > lifestageScores[b] ? a : b);
+        }
+
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            document.getElementById('formErrorBanner').style.display = 'none';
+
+            const fullName = document.getElementById('fullName').value.trim();
+            const sex = document.getElementById('sex').value;
+            const mobile = document.getElementById('mobile').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const socials = document.getElementById('socials').value.trim();
+
+            if(!fullName || !mobile || !email) {
+                showFormError("Pakisagutan ang lahat ng mandatory fields.");
+                return;
+            }
+
+            clientData = { fullName, sex, mobile, email, socials };
+            const calculatedStage = calculateLifeStage();
+            const topGaps = calculateTopGaps();
+
+            const payload = {
+                "Client Full Name": fullName,
+                "Sex": sex,
+                "Mobile Number": mobile,
+                "Email Address": email,
+                "Socials Contact Preference": socials || "None",
+                "Total XP Points": scoreXp,
+                "Life Stage Result": calculatedStage,
+                "Top Needs Identified": topGaps.map(g => gapMetadata[g].title).join(', '),
+                "Detailed Scores Breakdown": JSON.stringify(scores)
+            };
+
+            const overlay = document.getElementById('loaderOverlay');
+            overlay.style.display = 'flex';
+
+            try {
+                // Submit to Formspree
+                const response = await fetch('https://formspree.io/f/xnjrjkbq', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    renderResults(calculatedStage, topGaps, fullName);
+                    generateStaticSmartInsight(calculatedStage, topGaps, fullName);
+                    showScreen('resultsScreen');
+                } else {
+                    showFormError('Naku, nagkaroon tayo ng kaunting error sa pag-send! Paki-subukan ulit.');
+                }
+            } catch (err) {
+                showFormError('Naku, mukhang mahina ang koneksyon natin. Paki-check ang iyong internet at subukan muli.');
+            } finally {
+                overlay.style.display = 'none';
+            }
+        }
+
+        function showFormError(msg) {
+            const banner = document.getElementById('formErrorBanner');
+            document.getElementById('formErrorMessage').innerText = msg;
+            banner.style.display = 'flex';
+            banner.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function renderResults(stage, gaps, name) {
+            document.getElementById('lifeStageBadge').innerText = lifestageMetadata[stage];
+            const container = document.getElementById('gapsContainer');
+            container.innerHTML = '';
+
+            gaps.forEach((gapKey, idx) => {
+                const metadata = gapMetadata[gapKey];
+                const card = document.createElement('div');
+                card.className = 'gap-card';
+                card.innerHTML = `
+                    <div class="gap-icon">${metadata.icon}</div>
+                    <div class="gap-content">
+                        <span class="gap-title">#${idx + 1} ${metadata.title}</span>
+                        <p class="gap-desc">${metadata.desc}</p>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            const emailSubject = encodeURIComponent(`Hi Mark! Heto ang Aking Financial Health Results`);
+            const emailBody = encodeURIComponent(
+                `Hi Mark! Ako si ${name}.\n\n` +
+                `Katatapos ko lang sagutan ang iyong diagnostic quiz! Heto ang lumabas na top 3 needs ko para sa aking financial security:\n` +
+                `1. ${gapMetadata[gaps[0]].title}\n` +
+                `2. ${gapMetadata[gaps[1]].title}\n` +
+                `3. ${gapMetadata[gaps[2]].title}\n\n` +
+                `Nais ko sanang magtanong kung paano ko mas mapaghahandaan ang mga ito sa tulong ng Sun Life. Salamat!`
+            );
+            
+            document.getElementById('ctaEmailBtn').href = `mailto:markjohn.q.padilla@sunlife.com.ph?subject=${emailSubject}&body=${emailBody}`;
+        }
+
+        // Generates an instant, highly customized Taglish summary without needing Gemini/API keys
+        function generateStaticSmartInsight(stage, gaps, name) {
+            const gap1 = gapMetadata[gaps[0]].title;
+            const gap2 = gapMetadata[gaps[1]].title;
+            const gap3 = gapMetadata[gaps[2]].title;
+            
+            const insightText = `Salamat sa pagsagot, ${name}! 🎉 Base sa mga scores na nakuha mo, nakita natin na ang iyong Life Stage ngayon ay nakasentro sa "${stage}". Dahil dito, mahalagang pagtuunan natin ng pansin ang iyong ${gap1}, kasama na rin ang ${gap2} at ${gap3}. \n\nAng pinakamagandang unang hakbang ay pag-aralan kung paano natin dahan-dahang pupunan ang mga priorities na ito nang hindi ka nahihirapan sa budget. \n\nI-click ang message button o mag-tanong ka sa chat box sa ibaba para makapag-set tayo ng mabilisang kape-chat. Tutulungan kitang gumawa ng exact financial blueprint mo!`;
+            
+            document.getElementById('aiContent').innerText = insightText;
+        }
+
+        // ==========================================
+        // SMART CONCIERGE CHAT LOGIC (Option B)
+        // ==========================================
+        
+        const conciergeReplies = {
+            emergency: "Ang Emergency Fund ay ideal na 6-12 months ng iyong living expenses. Ito ang safety net mo para hindi ka mangutang sa oras ng biglaang krisis. I-message mo ako sa Messenger para matulungan kitang i-compute ang perfect target goal mo! 🚨",
+            health: "Ang Health Protection ay mas malawak sa regular HMO. It protects your life savings from being wiped out by major critical illnesses (tulad ng cancer o stroke). Gusto mo bang malaman ang budget-friendly options natin? I-message mo ako! 🏥",
+            life: "Income protection acts like a financial umbrella for your family. Kung may mangyari man sa breadwinner, tuloy pa rin ang pag-aaral ng mga bata at pambayad sa bills. Pagusapan natin ang exact computation na bagay sa sweldo mo via Messenger! 🛡️",
+            retirement: "Para sa Retirement, ang rule of thumb ay kailangan mo ng 20x ng annual income mo para maging komportable. The earlier you start, the smaller ang kailangan mong itabi. I-message mo ako para gawan kita ng projection table! 🍹",
+            default: "Magandang tanong 'yan! Dahil bawat sitwasyon at income level ay unique, ang pinaka-accurate na sagot ay makukuha natin via a quick 1-on-1 consult. I-message mo ako sa Messenger o Email gamit ang buttons sa ibaba para ma-discuss natin! 😊"
+        };
+
+        function smartChat(topic) {
+            const messagesDiv = document.getElementById('chatMessages');
+            
+            // Add user selected prompt
+            let questionText = topic;
+            if (topic === 'emergency') questionText = "Paano ba sisimulan ang Emergency Fund?";
+            if (topic === 'health') questionText = "Ano ang difference ng Health Protection sa HMO?";
+            if (topic === 'life') questionText = "Bakit importante ang Income Protection?";
+            if (topic === 'retirement') questionText = "Paano mag-compute para sa Retirement Fund?";
+
+            const userBubble = document.createElement('div');
+            userBubble.className = 'chat-bubble user';
+            userBubble.innerText = questionText;
+            messagesDiv.appendChild(userBubble);
+
+            // Add Smart Bot Response
+            const aiBubble = document.createElement('div');
+            aiBubble.className = 'chat-bubble ai';
+            aiBubble.innerText = conciergeReplies[topic] || conciergeReplies.default;
+            messagesDiv.appendChild(aiBubble);
+
+            // Auto-scroll
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') sendChatMessage();
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            if(input.value.trim() === "") return;
+            
+            const messagesDiv = document.getElementById('chatMessages');
+            
+            // Append user input
+            const userBubble = document.createElement('div');
+            userBubble.className = 'chat-bubble user';
+            userBubble.innerText = input.value;
+            messagesDiv.appendChild(userBubble);
+
+            // Append default catch-all prompt urging a consult
+            const aiBubble = document.createElement('div');
+            aiBubble.className = 'chat-bubble ai';
+            aiBubble.innerText = conciergeReplies.default;
+            messagesDiv.appendChild(aiBubble);
+
+            // Clear and scroll
+            input.value = "";
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+    </script>
+</body>
+</html>
